@@ -1,4 +1,4 @@
-/* Base resets and coding styles */
+/* Base resets and coding styles for dark mode */
 * {
   box-sizing: border-box;
 }
@@ -11,9 +11,16 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--sb-bg-gradient) !important;
+  color: var(--text-color);
+  min-height: 100vh;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+  background: #25282e;
+  color: #ffebbb;
+  border-radius: 3px;
+  padding: 0.2em 0.45em;
 }
