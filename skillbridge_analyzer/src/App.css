@@ -19,6 +19,7 @@
   --sb-border: 2.5px solid #2c3237;
 }
 
+/* Global body and root app background for dark mode */
 body {
   margin: 0;
   font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
@@ -45,6 +46,7 @@ body {
   box-sizing: border-box;
 }
 
+/* Hero, cards, accent utility backgrounds for dark theme vibrancy */
 .hero {
   padding-top: 120px;
   padding-bottom: 64px;
@@ -63,6 +65,34 @@ body {
   border-radius: 15px;
   box-shadow: 0 6px 22px 0 #101316cc;
   border: var(--sb-border);
+}
+
+.accent-block {
+  background: var(--sb-accent-block);
+  border-radius: 13px;
+  box-shadow: 0 3px 22px 0 #1e001955;
+}
+
+/* Typography in dark mode */
+.subtitle {
+  color: var(--kavia-orange);
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.title {
+  font-size: 3.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.description {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin-bottom: 16px;
 }
 
 /* Buttons - modern dark glass look with accent transitions */
@@ -87,12 +117,6 @@ body {
 .btn:active {
   background: var(--sb-accent);
   color: #fff;
-}
-
-.accent-block {
-  background: var(--sb-accent-block);
-  border-radius: 13px;
-  box-shadow: 0 3px 22px 0 #1e001955;
 }
 
 /* Utility card styles for vibrant pop against dark */
@@ -148,26 +172,4 @@ th {
   font-weight: bold;
   margin-right: 8px;
   text-shadow: 0 2px 8px #f3c95e44;
-}
-
-/* Typography on dark */
-.subtitle {
-  color: var(--kavia-orange);
-  font-weight: 500;
-  font-size: 1.1rem;
-}
-
-.title {
-  font-size: 3.5rem;
-  font-weight: 600;
-  line-height: 1.2;
-  margin: 0;
-}
-
-.description {
-  font-size: 1.1rem;
-  line-height: 1.5;
-  color: var(--text-secondary);
-  max-width: 600px;
-  margin-bottom: 16px;
 }
