@@ -366,7 +366,7 @@ function MainContainer() {
   // --- Skill resource links for learning ---
   // PUBLIC_INTERFACE
   function getSkillResourceLinks(skill) {
-    // Map popular skills to demo resources.
+    // Map popular skills to demo resources. Fallback is empty array (no Google search).
     const resourceDb = {
       "JavaScript": [
         { label: "freeCodeCamp JS", url: "https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/" },
@@ -404,13 +404,10 @@ function MainContainer() {
       ],
       "Docker": [
         { label: "Docker Getting Started", url: "https://docs.docker.com/get-started/" }
-      ],
-      // Add more as needed, fallback to general
-      "default": [
-        { label: "Search Google", url: "https://www.google.com/search?q=learn+SKILL" }
       ]
+      // No 'default' for Google search.
     };
-    return resourceDb[skill] || [ ...resourceDb["default"].map(link => ({...link, url: link.url.replace("SKILL", encodeURIComponent(skill))})) ];
+    return resourceDb[skill] || [];
   }
 
   // Step 4: Percentage match
