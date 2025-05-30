@@ -363,11 +363,11 @@ function MainContainer() {
     );
   }
 
-  // --- Skill resource links for learning ---
+  // --- Skill learning links for improvement ---
   // PUBLIC_INTERFACE
-  function getSkillResourceLinks(skill) {
-    // Map popular skills to demo resources. Fallback is empty array (no Google search).
-    const resourceDb = {
+  function getSkillLearningLinks(skill) {
+    // Map popular skills to demo learning links. Fallback is empty array (no Google search).
+    const learningDb = {
       "JavaScript": [
         { label: "freeCodeCamp JS", url: "https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/" },
         { label: "MDN JS", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
@@ -407,7 +407,7 @@ function MainContainer() {
       ]
       // No 'default' for Google search.
     };
-    return resourceDb[skill] || [];
+    return learningDb[skill] || [];
   }
 
   // Step 4: Percentage match
@@ -415,7 +415,7 @@ function MainContainer() {
     const results = getSkillMatchResults();
     const percent = getMatchPercent();
 
-    // For vibrant row highlighting/status, and adding a "Resources" column for missing or weak skills.
+    // For vibrant row highlighting/status, and adding a "Learn" column for missing or weak skills.
     return (
       <div style={{
         ...styles.cardBlock,
@@ -465,12 +465,12 @@ function MainContainer() {
                   <th style={{color:"#385e5d"}}>Required Level</th>
                   <th style={{color:"#385e5d"}}>Your Level</th>
                   <th style={{color:THEME.primary}}>Status</th>
-                  <th style={{color:THEME.accent}}>Resources</th>
+                  <th style={{color:THEME.accent}}>Learn</th>
                 </tr>
               </thead>
               <tbody>
                 {results.map((r, i) => {
-                  // Determine if to show resources
+                  // Determine if to show learning links
                   const needsHelp = !r.matched;
                   let rowBg = "";
                   if (r.userLevel === "None") rowBg = "#fff8f9";
@@ -503,7 +503,7 @@ function MainContainer() {
                       <td>
                         {needsHelp ? (
                           <div style={{display:"flex", flexDirection:"column", gap:3}}>
-                            {getSkillResourceLinks(r.name).slice(0,2).map(link =>
+                            {getSkillLearningLinks(r.name).slice(0,2).map(link =>
                               <a
                                 key={link.url}
                                 href={link.url}
