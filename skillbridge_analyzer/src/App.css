@@ -1,18 +1,22 @@
 :root {
+  /* Brand accent colors */
   --kavia-orange: #E87A41;
-  --kavia-dark: #1A1A1A;
-  --text-color: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --border-color: rgba(255, 255, 255, 0.1);
+  --kavia-dark: #181B1E;
+  --text-color: #F4F4F7;
+  --text-secondary: #c3c6cf;
+  --border-color: #25282e;
 
-  /* Added SkillBridge vibrant palette */
   --sb-primary: #4F8A8B;
   --sb-secondary: #FBD46D;
   --sb-accent: #F76B8A;
 
-  --sb-navbar-gradient: linear-gradient(90deg, #4F8A8B 55%, #FBD46D 95%, #F76B8A 100%);
-  --sb-bg-gradient: linear-gradient(108deg, #f9f9fc 60%, #fbd46d11 100%);
-  --sb-border: 2px solid #FBD46D;
+  --sb-navbar-gradient: linear-gradient(90deg, #212A2E 65%, #4F8A8B 100%);
+  --sb-bg-gradient: linear-gradient(120deg, #191C20 60%, #23262e 100%);
+  --sb-sheet: #21272e;
+  --sb-sheet-light: #232733cc;
+  --sb-card-gradient: linear-gradient(108deg, #23262e 71%, #23232e 100%);
+  --sb-accent-block: linear-gradient(92deg, #25283a 30%, #2a2339dd 100%);
+  --sb-border: 2.5px solid #2c3237;
 }
 
 body {
@@ -22,14 +26,15 @@ body {
   color: var(--text-color);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
 }
 
-/* Boost all primary card blocks and containers with vibrancy */
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--sb-bg-gradient);
+  color: var(--text-color);
 }
 
 .container {
