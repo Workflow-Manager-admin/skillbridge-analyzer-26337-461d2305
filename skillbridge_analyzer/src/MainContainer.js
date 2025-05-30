@@ -158,7 +158,7 @@ function MainContainer() {
   // Step 1: job selection
   function renderJobSelect() {
     return (
-      <div style={styles.cardBlock}>
+      <div style={{...styles.cardBlock, background: "linear-gradient(109deg,#21242a 70%,#252a31 120%)"}}>
         <h2 style={styles.heading}>Step 1: Choose Your Desired Job</h2>
         <p style={styles.stepDesc}>Pick a career to analyze skill fit.</p>
         <div style={styles.jobList}>
@@ -168,8 +168,8 @@ function MainContainer() {
               onClick={() => setJobIdx(idx)}
               style={{
                 ...styles.jobBtn,
-                background: jobIdx === idx ? THEME.primary : THEME.secondary,
-                color: jobIdx === idx ? "#fff" : "#1a1a1a"
+                background: jobIdx === idx ? THEME.primary : "#272E33",
+                color: jobIdx === idx ? "#fff" : "#abb4be"
               }}
             >
               {j.title}
