@@ -1,948 +1,759 @@
 import React, { useState } from "react";
 
 /**
- * Colors and Theme
- * primary: #4F8A8B
- * secondary: #FBD46D
- * accent: #F76B8A
- * light: #FFFFFF
- */
-
-/**
  * PUBLIC_INTERFACE
  * MainContainer: The main SkillBridge Analyzer container component.
+ * Step-by-step process:
+ *   1 - Job selection
+ *   2 - Required skills display
+ *   3 - User enters own skills/levels
+ *   4 - Analyzer compares, calculates percentage match
+ *   5 - UI displays summary and visual
  */
+const DEMO_JOBS = [
+  {
+    title: "Data Analyst",
+    requiredSkills: [
+      { name: "Data Cleaning", level: "Intermediate" },
+      { name: "SQL", level: "Intermediate" },
+      { name: "Python", level: "Intermediate" },
+      { name: "Excel", level: "Beginner" },
+      { name: "Statistics", level: "Intermediate" },
+    ]
+  },
+  {
+    title: "UX Designer",
+    requiredSkills: [
+      { name: "Wireframing", level: "Intermediate" },
+      { name: "User Research", level: "Beginner" },
+      { name: "Prototyping", level: "Intermediate" },
+      { name: "Visual Design", level: "Intermediate" },
+      { name: "Communication", level: "Expert" }
+    ]
+  },
+  {
+    title: "Frontend Developer",
+    requiredSkills: [
+      { name: "JavaScript", level: "Intermediate" },
+      { name: "React", level: "Intermediate" },
+      { name: "CSS", level: "Intermediate" },
+      { name: "HTML", level: "Intermediate" }
+    ]
+  },
+  {
+    title: "DevOps Engineer",
+    requiredSkills: [
+      { name: "Linux", level: "Intermediate" },
+      { name: "AWS", level: "Intermediate" },
+      { name: "CI/CD", level: "Intermediate" },
+      { name: "Docker", level: "Intermediate" }
+    ]
+  }
+];
+
+// For consistent color theme:
+const THEME = {
+  primary: "#4F8A8B",
+  secondary: "#FBD46D",
+  accent: "#F76B8A",
+  light: "#fff"
+};
+const LEVELS = ["Beginner", "Intermediate", "Expert"];
+const LEVEL_TO_NUM = { Beginner: 1, Intermediate: 2, Expert: 3 };
+const NUM_TO_LEVEL = { 1: "Beginner", 2: "Intermediate", 3: "Expert" };
+
 function MainContainer() {
-  // Wizard steps: 0-Skill, 1-Job Role, 2-Gap, 3-Resources, 4-Progress
+  // Step index: 0-select job, 1-show required, 2-user input,
+  // 3-matching, 4-summary/visual
   const [step, setStep] = useState(0);
 
-  // Dummy Data & State
-  const [skills, setSkills] = useState([
-    { name: "JavaScript", level: 3 },
-    { name: "React", level: 2 },
-    { name: "CSS", level: 4 }
-  ]);
-  const [editingSkill, setEditingSkill] = useState("");
-  const [editingLevel, setEditingLevel] = useState(1);
-  const [jobQuery, setJobQuery] = useState("");
-  const [jobRole, setJobRole] = useState("");
-  const jobRoles = [
-    "Frontend Developer",
-    "Backend Developer",
-    "Full Stack Engineer",
-    "Data Scientist",
-    "DevOps Engineer"
-  ];
+  // Step 1: job selection
+  const [jobIdx, setJobIdx] = useState(null);
 
-  // Simulated required skills profiles
-  const requiredSkills = {
-    "Frontend Developer": [
-      { name: "HTML", level: 4 },
-      { name: "CSS", level: 4 },
-      { name: "JavaScript", level: 4 },
-      { name: "React", level: 4 },
-      { name: "Testing", level: 3 }
-    ],
-    "Backend Developer": [
-      { name: "Python", level: 4 },
-      { name: "Databases", level: 3 },
-      { name: "APIs", level: 4 },
-      { name: "Docker", level: 3 }
-    ],
-    "Full Stack Engineer": [
-      { name: "HTML", level: 3 },
-      { name: "CSS", level: 3 },
-      { name: "JavaScript", level: 4 },
-      { name: "React", level: 3 },
-      { name: "Node.js", level: 3 },
-      { name: "Databases", level: 3 }
-    ],
-    "Data Scientist": [
-      { name: "Python", level: 4 },
-      { name: "Statistics", level: 3 },
-      { name: "Machine Learning", level: 3 },
-      { name: "SQL", level: 3 }
-    ],
-    "DevOps Engineer": [
-      { name: "Linux", level: 4 },
-      { name: "CI/CD", level: 3 },
-      { name: "AWS", level: 3 },
-      { name: "Docker", level: 4 }
-    ]
-  };
+  // Step 2: nothing to enter
+  // Step 3: user skills management
+  const [userSkills, setUserSkills] = useState([]);
+  const [newSkillName, setNewSkillName] = useState("");
+  const [newSkillLevel, setNewSkillLevel] = useState("Beginner");
+  const [editingIdx, setEditingIdx] = useState(null);
 
-  // Compute gap analysis (map skill to {current, required, gap})
-  function getGapResults() {
-    if (!jobRole) return [];
-    const reqs = requiredSkills[jobRole] || [];
-    return reqs.map(req => {
-      const current = skills.find(s => s.name.toLowerCase() === req.name.toLowerCase());
-      const currentLvl = current ? current.level : 0;
+  // Find selected job object
+  const selectedJob = jobIdx !== null ? DEMO_JOBS[jobIdx] : null;
+  const requiredSkills = selectedJob ? selectedJob.requiredSkills : [];
+
+  // Methods for user skill management
+  function handleAddSkill(e) {
+    e.preventDefault();
+    if (!newSkillName.trim()) return;
+    // avoid duplicates
+    if (userSkills.some(s => s.name.trim().toLowerCase() === newSkillName.trim().toLowerCase())) return;
+    setUserSkills([
+      ...userSkills,
+      { name: newSkillName.trim(), level: newSkillLevel }
+    ]);
+    setNewSkillName("");
+    setNewSkillLevel("Beginner");
+  }
+
+  function handleDeleteSkill(idx) {
+    setUserSkills(userSkills.filter((_, i) => i !== idx));
+  }
+
+  function handleEditSkill(idx) {
+    setEditingIdx(idx);
+    setNewSkillName(userSkills[idx].name);
+    setNewSkillLevel(userSkills[idx].level);
+  }
+  function handleUpdateSkill(e) {
+    e.preventDefault();
+    setUserSkills(userSkills.map((s, i) =>
+      i === editingIdx ? { name: newSkillName.trim(), level: newSkillLevel } : s
+    ));
+    setNewSkillName("");
+    setNewSkillLevel("Beginner");
+    setEditingIdx(null);
+  }
+  function handleCancelEdit() {
+    setNewSkillName("");
+    setNewSkillLevel("Beginner");
+    setEditingIdx(null);
+  }
+
+  // Step 4: calculation
+  function getSkillMatchResults() {
+    // For each required skill, see if user has it at the expected level or higher
+    if (!requiredSkills.length) return [];
+    // Level-to-number for easier comparison
+    return requiredSkills.map(req => {
+      const user = userSkills.find(
+        s => s.name.trim().toLowerCase() === req.name.trim().toLowerCase()
+      );
+      const userLevel = user ? LEVEL_TO_NUM[user.level] : 0;
+      const reqLevel = LEVEL_TO_NUM[req.level];
+      const matched = userLevel >= reqLevel;
       return {
         ...req,
-        current: currentLvl,
-        gap: req.level - currentLvl
+        requiredLevel: req.level,
+        requiredNum: reqLevel,
+        userLevel: user ? user.level : "None",
+        userNum: userLevel,
+        matched
       };
     });
   }
 
-  // Dummy recommended resources
-  function getResourceSuggestionsForGap(skillName) {
-    const resources = {
-      "JavaScript": [
-        { title: "JavaScript.info", type: "Article", link: "https://javascript.info/" },
-        { title: "ES6 for Everyone", type: "Course", link: "https://es6.io/" }
-      ],
-      "React": [
-        { title: "React Official Docs", type: "Article", link: "https://reactjs.org/" },
-        { title: "Scrimba React Course", type: "Course", link: "https://scrimba.com/learn/learnreact" }
-      ],
-      "CSS": [
-        { title: "CSS Tricks", type: "Article", link: "https://css-tricks.com/" },
-        { title: "Flexbox Froggy", type: "Game", link: "https://flexboxfroggy.com/" }
-      ]
-      // Add more mock mappings if desired
-    };
-    return resources[skillName] || [
-      { title: `Learn ${skillName} Basics`, type: "Course", link: "#" },
-      { title: `${skillName} Crash Course`, type: "Video", link: "#" }
-    ];
+  function getMatchPercent() {
+    const list = getSkillMatchResults();
+    if (!list.length) return 0;
+    const matchedCount = list.filter(result => result.matched).length;
+    return Math.round((matchedCount / list.length) * 100);
   }
 
-  // Progress simulation
-  const completedCount = getGapResults().filter(r => r.gap <= 0).length;
-  const totalCount = getGapResults().length > 0 ? getGapResults().length : 1;
-  const overallProgress = Math.round((completedCount / totalCount) * 100);
+  // Render step-by-step UI as required
 
-  // ----- UI Pieces -----
-  function renderHeader() {
+  // Step 1: job selection
+  function renderJobSelect() {
     return (
-      <header style={{
-        background: "#fff",
-        borderBottom: "5px solid #FBD46D",
-        padding: "0 0 0 0",
-        position: "sticky",
-        top: 0,
-        zIndex: 5,
-        boxShadow: "0 4px 16px 0 rgba(79,138,139,0.04)",
-      }}>
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          height: 70,
-          maxWidth: 1040,
-          margin: "0 auto",
-          padding: "0 32px",
-        }}>
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            flex: 1,
-            fontWeight: 700,
-            fontSize: "2rem",
-            color: "#4F8A8B",
-            letterSpacing: "1px"
-          }}>
-            <span style={{
-              marginRight: 10,
-              color: "#F76B8A",
-              fontSize: "2.1rem"
-            }}>★</span>
-            SkillBridge <span style={{ color: "#F76B8A", marginLeft: 8 }}>Analyzer</span>
-          </div>
-          <span style={{
-            fontWeight: 500,
-            background: "#FBD46D",
-            color: "#113D3C",
-            borderRadius: 20,
-            fontSize: 17,
-            padding: "5px 18px"
-          }}>
-            Demo
-          </span>
-        </div>
-      </header>
-    );
-  }
-
-  function renderWizard() {
-    const steps = [
-      { name: "Skills", color: "#4F8A8B" },
-      { name: "Job Role", color: "#FBD46D" },
-      { name: "Gap Analysis", color: "#F76B8A" },
-      { name: "Resources", color: "#4F8A8B" },
-      { name: "Progress", color: "#FBD46D" }
-    ];
-    return (
-      <div style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        margin: "32px 0 36px 0",
-        gap: 0
-      }}>
-        {steps.map((s, idx) => (
-          <div key={s.name} style={{
-            display: "flex",
-            alignItems: "center"
-          }}>
-            <div style={{
-              minWidth: 98,
-              padding: "10px 0",
-              background: idx === step ? s.color : "#EAEAEA",
-              color: idx === step ? (idx % 2 ? "#113D3C" : "#FFF") : "#888",
-              fontWeight: 600,
-              fontSize: 16,
-              borderRadius: "18px",
-              textAlign: "center",
-              cursor: "pointer",
-              boxShadow: idx === step ? "0 2px 12px 0 rgba(79,138,139,0.06)" : undefined,
-              transition: "background 0.2s"
-            }}
-              onClick={() => setStep(idx)}
+      <div style={styles.cardBlock}>
+        <h2 style={styles.heading}>Step 1: Choose Your Desired Job</h2>
+        <p style={styles.stepDesc}>Pick a career to analyze skill fit.</p>
+        <div style={styles.jobList}>
+          {DEMO_JOBS.map((j, idx) => (
+            <button
+              key={j.title}
+              onClick={() => setJobIdx(idx)}
+              style={{
+                ...styles.jobBtn,
+                background: jobIdx === idx ? THEME.primary : THEME.secondary,
+                color: jobIdx === idx ? "#fff" : "#1a1a1a"
+              }}
             >
-              {s.name}
-            </div>
-            {idx !== steps.length - 1 && (
-              <span style={{
-                width: 30,
-                height: 3,
-                background: idx < step ? "#4F8A8B" : "#F0F0F0",
-                margin: "0 5px",
-                borderRadius: 2,
-                display: "inline-block"
-              }} />
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  // Step 1: Skill Assessment
-  function renderSkillAssessment() {
-    function handleAddSkill(e) {
-      e.preventDefault();
-      if (!editingSkill.trim()) return;
-      setSkills(s => [...s, { name: editingSkill, level: editingLevel }]);
-      setEditingSkill("");
-      setEditingLevel(1);
-    }
-    function handleSkillLevelChange(idx, newLevel) {
-      setSkills(s =>
-        s.map((sk, i) =>
-          i === idx ? { ...sk, level: newLevel } : sk
-        )
-      );
-    }
-    function handleRemoveSkill(idx) {
-      setSkills(s => s.filter((_, i) => i !== idx));
-    }
-    return (
-      <div>
-        <h2 style={styles.heading}>1. Assess Your Skills</h2>
-        <p style={styles.stepDesc}>Add your current skills and rate your proficiency (1 = Beginner, 5 = Expert).</p>
-        <div style={styles.cardFlex}>
-          <form style={styles.card} onSubmit={handleAddSkill}>
-            <div style={{ display: "flex", gap: 15, alignItems: "center" }}>
-              <input
-                type="text"
-                value={editingSkill}
-                required
-                placeholder="Skill (e.g. JavaScript)"
-                style={styles.input}
-                onChange={e => setEditingSkill(e.target.value)}
-              />
-              <select
-                value={editingLevel}
-                style={{ ...styles.input, width: 90 }}
-                onChange={e => setEditingLevel(Number(e.target.value))}
-              >
-                {[1,2,3,4,5].map(v => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
-              </select>
-              <button type="submit" style={styles.accentBtn}>Add</button>
-            </div>
-          </form>
-        </div>
-        <div style={styles.cardFlex}>
-          {skills.map((skill, idx) => (
-            <div key={skill.name + idx} style={styles.skillCard}>
-              <span style={{ fontWeight: 600 }}>{skill.name}</span>
-              <SkillLevelBar level={skill.level} />
-              <div style={{ marginTop: 12, display: "flex", gap: 6 }}>
-                <label style={{ fontSize: 14 }}>Level:</label>
-                <select
-                  value={skill.level}
-                  style={styles.skillLevelSelect}
-                  onChange={e => handleSkillLevelChange(idx, Number(e.target.value))}
-                >
-                  {[1,2,3,4,5].map(v => (
-                    <option key={v} value={v}>{v}</option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  style={styles.delBtn}
-                  aria-label="Remove Skill"
-                  onClick={() => handleRemoveSkill(idx)}
-                >✕</button>
-              </div>
-            </div>
+              {j.title}
+            </button>
           ))}
         </div>
-        <div style={styles.stepNav}>
+        <div style={styles.actionsRow}>
           <button
-            style={styles.wizBtnDisabled}
+            style={{ ...styles.navBtn, ...styles.btnDisabled }}
             disabled
           >Back</button>
           <button
-            style={styles.wizBtn}
+            style={jobIdx !== null ? styles.navBtn : { ...styles.navBtn, ...styles.btnDisabled }}
+            disabled={jobIdx === null}
             onClick={() => setStep(1)}
-          >Next: Job Role →</button>
+          >Next</button>
         </div>
       </div>
     );
   }
 
-  // Step 2: Job Role Selection
-  function renderJobRoleSelection() {
-    const filteredRoles = jobRole
-      ? [jobRole]
-      : (jobQuery.trim()
-          ? jobRoles.filter(j => j.toLowerCase().includes(jobQuery.toLowerCase()))
-          : jobRoles
-      );
+  // Step 2: show required skills/levels
+  function renderJobRequirements() {
+    if (!selectedJob) return null;
     return (
-      <div>
-        <h2 style={styles.heading}>2. Select a Job Role</h2>
-        <p style={styles.stepDesc}>Choose a career or job role to compare your skills.</p>
-        <div style={styles.cardFlex}>
-          <div style={styles.card}>
-            <input
-              type="text"
-              style={styles.input}
-              placeholder="Search for a job role..."
-              value={jobQuery}
-              onChange={e => {
-                setJobQuery(e.target.value);
-                setJobRole("");
-              }}
-              autoFocus
-            />
-            <div style={{ marginTop: 14 }}>
-              {filteredRoles.length > 0 ? (
-                filteredRoles.map(r => (
-                  <button
-                    key={r}
-                    style={{
-                      ...styles.roleBtn,
-                      background: jobRole === r ? "#4F8A8B" : "#FBD46D",
-                      color: jobRole === r ? "#fff" : "#113D3C"
-                    }}
-                    onClick={() => setJobRole(r)}
-                    type="button"
-                  >
-                    {r}
-                  </button>
-                ))
-              ) : (
-                <span style={{ color: "#888", fontStyle: "italic" }}>No roles found.</span>
-              )}
-            </div>
-          </div>
-        </div>
-        <div style={styles.stepNav}>
+      <div style={styles.cardBlock}>
+        <h2 style={styles.heading}>Step 2: Required Skills for {selectedJob.title}</h2>
+        <p style={styles.stepDesc}>Review the typical skills and expected levels for this job.</p>
+        <table style={styles.skillsTable}>
+          <thead>
+            <tr>
+              <th>Skill</th>
+              <th>Required Level</th>
+            </tr>
+          </thead>
+          <tbody>
+            {selectedJob.requiredSkills.map((s, i) => (
+              <tr key={s.name}>
+                <td>{s.name}</td>
+                <td>
+                  <LevelPill level={s.level} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div style={styles.actionsRow}>
           <button
-            style={styles.wizBtn}
+            style={styles.navBtn}
             onClick={() => setStep(0)}
-          >← Back</button>
+          >Back</button>
           <button
-            style={jobRole ? styles.wizBtn : styles.wizBtnDisabled}
-            onClick={() => jobRole && setStep(2)}
-            disabled={!jobRole}
-          >Next: Analyze your Gap →</button>
-        </div>
-      </div>
-    );
-  }
-
-  // Step 3: Gap Analysis Report
-  function renderGapAnalysis() {
-    const gaps = getGapResults();
-    function getBarPercent(req, curr) {
-      return Math.min(100, Math.round((curr / req) * 100));
-    }
-    return (
-      <div>
-        <h2 style={styles.heading}>3. Gap Analysis Report</h2>
-        <p style={styles.stepDesc}>
-          Here's how your skills match the requirements for <span style={{ color: "#F76B8A", fontWeight: 600 }}>{jobRole}</span>.
-        </p>
-        <div style={styles.cardFlex}>
-          <div style={styles.reportCard}>
-            <div>
-              <div style={{ marginBottom: 18 }}>
-                {gaps.map(gap => (
-                  <div key={gap.name} style={{ marginBottom: 20 }}>
-                    <span style={{ fontWeight: 600, fontSize: 16 }}>
-                      {gap.name}
-                    </span>
-                    <div style={{ display: "flex", alignItems: "center", margin: "6px 0" }}>
-                      <div style={{
-                        flex: 1,
-                        background: "#EAEAEA",
-                        borderRadius: 7,
-                        height: 22,
-                        position: "relative",
-                        marginRight: 14
-                      }}>
-                        <div style={{
-                          background: gap.gap <= 0 ? "#4F8A8B" : "#F76B8A",
-                          width: getBarPercent(gap.level, gap.current) + "%",
-                          height: "100%",
-                          borderRadius: 7,
-                          transition: "width 0.4s",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "flex-end"
-                        }}>
-                          <span style={{
-                            color: "#FFF",
-                            padding: "0 10px",
-                            fontWeight: 500,
-                            fontSize: 13
-                          }}>
-                            {gap.current}/{gap.level}
-                          </span>
-                        </div>
-                      </div>
-                      {gap.gap > 0 ? (
-                        <span style={{ color: "#F76B8A", fontWeight: 600, fontSize: 15 }}>
-                          -{gap.gap}
-                        </span>
-                      ) : (
-                        <span style={{ color: "#4F8A8B", fontWeight: 600, fontSize: 15 }}>
-                          ✓
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ margin: "20px 0 0 0"}}>
-                <span style={{
-                  fontWeight: 600,
-                  fontSize: 18,
-                  color: (gaps.every(g => g.gap <= 0) ? "#4F8A8B" : "#F76B8A")
-                }}>
-                  Gap Summary:&nbsp;
-                  {gaps.every(g => g.gap <= 0) ? (
-                    "You meet or exceed all required skills!"
-                  ) : (
-                    `${gaps.filter(g => g.gap > 0).length} skill${gaps.filter(g => g.gap > 0).length > 1 ? "s" : ""} below required level`
-                  )}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div style={styles.card}>
-            <PieChart
-              skillResults={gaps}
-              primary="#4F8A8B"
-              accent="#F76B8A"
-              secondary="#FBD46D"
-            />
-          </div>
-        </div>
-        <div style={styles.stepNav}>
-          <button
-            style={styles.wizBtn}
-            onClick={() => setStep(1)}
-          >← Back</button>
-          <button
-            style={styles.wizBtn}
-            onClick={() => setStep(3)}
-          >Next: Learning Resources →</button>
-        </div>
-      </div>
-    );
-  }
-
-  // Step 4: Learning Resource Suggestions
-  function renderLearningResources() {
-    const gaps = getGapResults().filter(s => s.gap > 0);
-    return (
-      <div>
-        <h2 style={styles.heading}>4. Suggested Learning Resources</h2>
-        <p style={styles.stepDesc}>
-          Personalized recommendations to help you bridge the skill gap for <span style={{ color: "#F76B8A", fontWeight: 500 }}>{jobRole}</span>.
-        </p>
-        <div style={styles.cardFlex}>
-          {gaps.length === 0 && (
-            <div style={styles.card}>
-              <p style={{ fontWeight: 600, fontSize: 20, color: "#4F8A8B" }}>
-                🎉 Congratulations! No skill gaps identified.
-              </p>
-            </div>
-          )}
-          {gaps.map(gap => (
-            <div style={styles.resourceCard} key={gap.name}>
-              <span style={{
-                fontWeight: 700,
-                fontSize: 18,
-                color: "#4F8A8B",
-                letterSpacing: "0.5px"
-              }}>{gap.name}</span>
-              <div style={{
-                margin: "10px 0 6px 0",
-                fontSize: 14,
-                color: "#676767"
-              }}>
-                Required Level: <b>{gap.level}</b>, Your Level: <b style={{color:"#F76B8A"}}>{gap.current}</b>
-              </div>
-              <ul style={{ paddingLeft: 20 }}>
-                {getResourceSuggestionsForGap(gap.name).map(res => (
-                  <li key={res.title}>
-                    <a href={res.link} target="_blank" rel="noopener noreferrer" style={{
-                      fontWeight: 500,
-                      color: "#F76B8A"
-                    }}>
-                      {res.title}
-                    </a>
-                    <span style={{
-                      background: "#FBD46D",
-                      color: "#113D3C",
-                      borderRadius: "11px",
-                      marginLeft: "8px",
-                      padding: "1px 10px",
-                      fontSize: 14
-                    }}>
-                      {res.type}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div style={styles.stepNav}>
-          <button
-            style={styles.wizBtn}
+            style={styles.navBtn}
             onClick={() => setStep(2)}
-          >← Back</button>
-          <button
-            style={styles.wizBtn}
-            onClick={() => setStep(4)}
-          >Next: Track Progress →</button>
+          >Next</button>
         </div>
       </div>
     );
   }
 
-  // Step 5: Progress Tracking
-  function renderProgressTracking() {
-    const gaps = getGapResults();
+  // Step 3: user enters their own skills
+  function renderUserSkillsForm() {
     return (
-      <div>
-        <h2 style={styles.heading}>5. Progress Tracking</h2>
-        <p style={styles.stepDesc}>Your Skill Progress Overview</p>
-        <div style={styles.cardFlex}>
-          <div style={styles.progressCard}>
-            <span style={{
-              fontWeight: 700,
-              fontSize: 22,
-              color: "#F76B8A"
-            }}>
-              Progress for {jobRole}
-            </span>
-            <div style={{ margin: "20px 0 30px" }}>
-              <CircularProgressBar percent={overallProgress} label={`${overallProgress}%`} />
+      <div style={styles.cardBlock}>
+        <h2 style={styles.heading}>Step 3: Enter Your Current Skills</h2>
+        <p style={styles.stepDesc}>
+          Add relevant skills and assign your proficiency level.
+        </p>
+        <form onSubmit={editingIdx !== null ? handleUpdateSkill : handleAddSkill} style={styles.skillFormRow}>
+          <input
+            placeholder="Skill (e.g. SQL)"
+            value={newSkillName}
+            onChange={e => setNewSkillName(e.target.value)}
+            style={styles.input}
+            required
+            autoFocus
+          />
+          <select
+            value={newSkillLevel}
+            onChange={e => setNewSkillLevel(e.target.value)}
+            style={styles.input}
+            required
+          >
+            {LEVELS.map(l => (
+              <option value={l} key={l}>{l}</option>
+            ))}
+          </select>
+          {editingIdx === null ? (
+            <button type="submit" style={styles.actionBtn}>Add Skill</button>
+          ) : (
+            <>
+              <button type="submit" style={styles.actionBtn}>Update</button>
+              <button type="button" style={{ ...styles.actionBtn, background: THEME.accent }} onClick={handleCancelEdit}>Cancel</button>
+            </>
+          )}
+        </form>
+        <div style={styles.userSkillListBlock}>
+          {userSkills.length === 0 ? (
+            <div style={{ fontStyle: "italic", color: "#999", marginTop: 16 }}>
+              No skills added yet.
             </div>
-            <ul style={{ paddingLeft: 0, margin: 0 }}>
-              {gaps.map(gap => (
-                <li key={gap.name} style={{
-                  margin: "13px 0",
-                  display: "flex",
-                  alignItems: "center"
-                }}>
-                  <span style={{
-                    width: 110,
-                    display: "inline-block",
-                    fontWeight: 500,
-                    color: "#4F8A8B"
-                  }}>
-                    {gap.name}
-                  </span>
-                  <div style={{
-                    flex: 1,
-                    height: 13,
-                    borderRadius: 8,
-                    position: "relative",
-                    background: "#EAEAEA",
-                  }}>
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: 0,
-                        top: 0,
-                        height: "100%",
-                        borderRadius: 8,
-                        background: (gap.gap <= 0 ? "#FBD46D" : "#F76B8A"),
-                        width: Math.min(100, Math.round((gap.current / gap.level) * 100)) + "%",
-                        transition: "width 0.25s"
-                      }}
-                    />
-                  </div>
-                  <span style={{
-                    width: 40,
-                    display: "inline-block",
-                    textAlign: "right",
-                    fontWeight: 600,
-                    color: gap.gap <= 0 ? "#FBD46D" : "#F76B8A",
-                    fontSize: 13
-                  }}>
-                    {gap.current}/{gap.level}
-                  </span>
-                </li>
-              ))}
-            </ul>
+          ) : (
+            <table style={styles.skillsTable}>
+              <thead>
+                <tr>
+                  <th>Your Skill</th>
+                  <th>Level</th>
+                  <th style={{ width: 120 }}></th>
+                </tr>
+              </thead>
+              <tbody>
+                {userSkills.map((s, i) => (
+                  <tr key={s.name + i}>
+                    <td>{s.name}</td>
+                    <td><LevelPill level={s.level} /></td>
+                    <td>
+                      <button
+                        style={styles.tblBtn}
+                        title="Edit"
+                        onClick={() => handleEditSkill(i)}
+                        type="button"
+                      >✎</button>
+                      <button
+                        style={styles.tblBtn}
+                        title="Delete"
+                        onClick={() => handleDeleteSkill(i)}
+                        type="button"
+                      >✕</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+        <div style={styles.actionsRow}>
+          <button
+            style={styles.navBtn}
+            onClick={() => setStep(1)}
+          >Back</button>
+          <button
+            style={userSkills.length ? styles.navBtn : { ...styles.navBtn, ...styles.btnDisabled }}
+            disabled={userSkills.length === 0}
+            onClick={() => setStep(3)}
+          >Next</button>
+        </div>
+      </div>
+    );
+  }
+
+  // Step 4: Percentage match
+  function renderMatchResults() {
+    const results = getSkillMatchResults();
+    const percent = getMatchPercent();
+
+    return (
+      <div style={styles.cardBlock}>
+        <h2 style={styles.heading}>Step 4: Skill Match Analysis</h2>
+        <p style={styles.stepDesc}>
+          See your match for <b>{selectedJob.title}</b>.
+        </p>
+        <div style={styles.resultsRow}>
+          <div style={styles.resultsLeft}>
+            <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 10 }}>
+              Percentage Match
+            </div>
+            <PercentCircle percent={percent} />
+            <div style={{ margin: "16px 0 10px", color: THEME.primary, fontWeight: 500 }}>
+              {percent === 100
+                ? "Perfect! All required skills matched."
+                : percent === 0
+                  ? "No matches yet. Add more skills!"
+                  : `${percent}% of required skills are matched.`}
+            </div>
+          </div>
+          <div style={styles.resultsTableBlock}>
+            <table style={styles.skillsTable}>
+              <thead>
+                <tr>
+                  <th>Required Skill</th>
+                  <th>Required Level</th>
+                  <th>Your Level</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {results.map((r, i) => (
+                  <tr key={r.name + i}>
+                    <td>{r.name}</td>
+                    <td><LevelPill level={r.requiredLevel} /></td>
+                    <td>
+                      {r.userLevel !== "None" ? <LevelPill level={r.userLevel} /> : <span style={{ color: "#bbb" }}>---</span>}
+                    </td>
+                    <td>
+                      {r.userLevel === "None" ? (
+                        <span style={{ color: THEME.accent, fontWeight: "bold" }}>Missing</span>
+                      ) : r.matched ? (
+                        <span style={{ color: THEME.primary, fontWeight: "bold" }}>Matched</span>
+                      ) : (
+                        <span style={{ color: THEME.secondary, fontWeight: "bold" }}>Level too low</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
-        <div style={styles.stepNav}>
+        <div style={styles.actionsRow}>
           <button
-            style={styles.wizBtn}
-            onClick={() => setStep(3)}
-          >← Back</button>
+            style={styles.navBtn}
+            onClick={() => setStep(2)}
+          >Back</button>
           <button
-            style={styles.primaryBtn}
-            onClick={() => setStep(0)}
+            style={styles.navBtn}
+            onClick={() => setStep(4)}
+          >Finish</button>
+        </div>
+      </div>
+    );
+  }
+
+  // Step 5: summary and visual
+  function renderSummary() {
+    const percent = getMatchPercent();
+    const results = getSkillMatchResults();
+    const missing = results.filter(r => !r.matched);
+    return (
+      <div style={styles.cardBlock}>
+        <h2 style={styles.heading}>Step 5: Summary</h2>
+        <p style={styles.stepDesc}>Your analysis is complete!</p>
+        <div style={{ marginBottom: 30 }}>
+          <PercentCircle percent={percent} />
+        </div>
+        <div style={{
+          margin: "20px 0 30px",
+          fontWeight: 500,
+          color: percent === 100 ? THEME.primary : THEME.accent,
+          fontSize: 20
+        }}>
+          {percent === 100
+            ? `Excellent! You match all skills for ${selectedJob.title}.`
+            : <>
+                You match <b>{percent}%</b> of the required skills for <b>{selectedJob.title}</b>.<br/>
+                {missing.length > 0 &&
+                  <>
+                    <span style={{ color: THEME.accent }}>
+                      Improve these skills for a perfect fit:
+                    </span>
+                    <ul>
+                      {missing.map((r, i) =>
+                        <li key={r.name + i}>
+                          {r.name} ({r.userLevel === "None" ? "missing" : `your level: ${r.userLevel}; required: ${r.requiredLevel}`})
+                        </li>
+                      )}
+                    </ul>
+                  </>
+                }
+              </>
+          }
+        </div>
+        <div style={styles.actionsRow}>
+          <button
+            style={styles.navBtn}
+            onClick={() => {
+              setStep(0);
+              setJobIdx(null);
+              setUserSkills([]);
+            }}
           >Restart</button>
         </div>
       </div>
     );
   }
 
-  // ===== RENDER ===== //
+  // === Main render === //
   return (
-    <div style={{ background: "#fcfcfc", minHeight: "100vh" }}>
-      {renderHeader()}
-      <main style={{ maxWidth: 1040, margin: "0 auto", padding: "35px 8px 80px" }}>
-        <div style={{
-          margin: "35px 0",
-          textAlign: "center"
-        }}>
-          <h1 style={{
-            fontWeight: 800,
-            color: "#4F8A8B",
-            letterSpacing: "1.5px",
-            fontSize: "2.1em",
-            marginBottom: 10
-          }}>SkillBridge Analyzer</h1>
-          <div style={{
-            color: "#113D3C",
-            fontWeight: 500,
-            fontSize: 17,
-            marginBottom: 10
-          }}>
-            Uncover your skill gaps, bridge them, and land your ideal job!
+    <div style={{ background: "#fcfcfc", minHeight: "100vh", paddingBottom: 50 }}>
+      <header style={styles.header}>
+        <div style={styles.headerLogo}>
+          <span style={{ color: THEME.accent, fontSize: 30, marginRight: 10 }}>★</span>
+          SkillBridge <span style={{ color: THEME.accent, marginLeft: 5 }}>Analyzer</span>
+        </div>
+      </header>
+      <main style={styles.mainBlock}>
+        <div style={{ ...styles.hero, marginTop: 10 }}>
+          <div style={styles.sectionTitle}>
+            Skill Gap Analyzer - Step by Step
           </div>
-          <div style={{
-            color: "#F76B8A",
-            fontWeight: 500,
-            fontSize: 14,
-            marginBottom: 6
-          }}>
-            Start with your core skills, then follow each step to get personalized recommendations.
+          <div style={styles.heroSubtitle}>
+            Select a job, compare required skills, analyze your fit!
           </div>
         </div>
-        {renderWizard()}
+        <div style={styles.stepperRow}>
+          <StepBubble active={step === 0} text="Job" done={step > 0} />
+          <StepArrow />
+          <StepBubble active={step === 1} text="Required" done={step > 1} />
+          <StepArrow />
+          <StepBubble active={step === 2} text="You" done={step > 2} />
+          <StepArrow />
+          <StepBubble active={step === 3} text="Match" done={step > 3} />
+          <StepArrow />
+          <StepBubble active={step === 4} text="Summary" done={false} />
+        </div>
         <section>
-          {step === 0 && renderSkillAssessment()}
-          {step === 1 && renderJobRoleSelection()}
-          {step === 2 && renderGapAnalysis()}
-          {step === 3 && renderLearningResources()}
-          {step === 4 && renderProgressTracking()}
+          {step === 0 && renderJobSelect()}
+          {step === 1 && renderJobRequirements()}
+          {step === 2 && renderUserSkillsForm()}
+          {step === 3 && renderMatchResults()}
+          {step === 4 && renderSummary()}
         </section>
       </main>
     </div>
   );
 }
 
-// --- Skill Level Bar Component ---
-function SkillLevelBar({ level }) {
-  const color = level >= 4 ? "#4F8A8B" : (level === 3 ? "#FBD46D" : "#F76B8A");
+// --- Stepper UI ---
+function StepBubble({ text, active, done }) {
   return (
     <div style={{
-      width: "100%",
-      height: 10,
-      background: "#EAEAEA",
-      borderRadius: 7,
-      marginTop: 8
-    }}>
-      <div style={{
-        width: `${level * 20}%`,
-        height: "100%",
-        borderRadius: 7,
-        background: color,
-        transition: "width 0.3s"
-      }}/>
-    </div>
+      minWidth: 76,
+      borderRadius: 25,
+      background: active
+        ? THEME.primary
+        : (done ? THEME.secondary : "#ededed"),
+      color: active
+        ? "#fff"
+        : (done ? "#333" : "#bbb"),
+      padding: "9px 19px",
+      textAlign: "center",
+      fontWeight: 700,
+      fontSize: 16,
+      position: "relative",
+    }}>{text}</div>
+  );
+}
+function StepArrow() {
+  return (
+    <span style={{
+      fontSize: 36,
+      color: "#bbb",
+      margin: "0 8px 0 8px",
+      fontWeight: 900
+    }}>{'>'}</span>
+  );
+}
+// --- LevelPill small component ---
+function LevelPill({ level }) {
+  const map = { Beginner: "#f3bcbc", Intermediate: "#ffe7a5", Expert: "#c0e1d7" };
+  return (
+    <span style={{
+      padding: "3px 12px",
+      borderRadius: 12,
+      background: map[level] || "#eee",
+      color: "#333",
+      fontSize: 14,
+      fontWeight: 500
+    }}>{level}</span>
   );
 }
 
-// --- Simple Pie Chart Component ---
-/**
- * PieChart: Draws a "filled" donut chart for skills coverage (using SVG).
- * @param {Array} skillResults: Array of {name, level, current, gap}
- */
-function PieChart({ skillResults, primary, accent, secondary }) {
-  const total = skillResults.length;
-  const covered = skillResults.filter(s => s.gap <= 0).length;
-  const percent = total > 0 ? covered / total : 1;
-  // Pie chart: covered = primary/secondary, uncovered = accent
-  const radius = 46, stroke = 17, c = 2 * Math.PI * radius;
+// --- PercentCircle visual (simple donut) ---
+function PercentCircle({ percent }) {
+  // Adapted simple circular progress for visual
+  const sz = 112, r = 48, st = 12, PI = Math.PI, C = 2 * PI * r;
+  const arc = percent / 100 * C;
   return (
-    <div style={{
-      display: "flex", flexDirection: "column", alignItems: "center"
-    }}>
-      <svg width={120} height={120}>
-        <circle
-          cx="60" cy="60" r={radius}
-          stroke="#EAEAEA" strokeWidth={stroke}
-          fill="none"
-        />
-        <circle
-          cx="60" cy="60" r={radius}
-          stroke={percent === 1 ? secondary : primary}
-          strokeWidth={stroke}
-          fill="none"
-          strokeDasharray={`${c * percent} ${c*(1-percent)}`}
-          strokeDashoffset={0}
-          style={{transition: "stroke-dasharray 0.4s"}}
-        />
-        {percent < 1 && (
-          <circle
-            cx="60" cy="60" r={radius}
-            stroke={accent}
-            strokeWidth={stroke}
-            fill="none"
-            strokeDasharray={`${c * (1 - percent)} ${c * percent}`}
-            strokeDashoffset={c * percent * -1}
-            style={{transition: "stroke-dasharray 0.4s"}}
-          />
-        )}
-        <text x="50%" y="54%" textAnchor="middle" fontSize="25" fill="#4F8A8B" fontWeight="700" dy=".3em">
-          {Math.round(percent * 100)}%
-        </text>
-      </svg>
-      <div style={{
-        marginTop: 12,
-        fontWeight: 500,
-        color: "#4F8A8B"
-      }}>
-        Skills Matched
-      </div>
-    </div>
-  );
-}
-
-// --- Circular Progress Bar for Progress Page ---
-function CircularProgressBar({ percent, label }) {
-  const radius = 49, stroke = 12, c = 2 * Math.PI * radius;
-  return (
-    <svg width={120} height={120} style={{display:"block", margin:"0 auto"}}>
+    <svg width={sz} height={sz} style={{ display: "block", margin: "0 auto" }}>
+      {/* Back circle */}
       <circle
-        cx="60" cy="60" r={radius}
-        stroke="#EAEAEA" strokeWidth={stroke}
+        cx={sz / 2}
+        cy={sz / 2}
+        r={r}
         fill="none"
+        stroke="#eee"
+        strokeWidth={st}
       />
+      {/* Value arc */}
       <circle
-        cx="60" cy="60" r={radius}
-        stroke="#FBD46D"
-        strokeWidth={stroke}
+        cx={sz / 2}
+        cy={sz / 2}
+        r={r}
         fill="none"
-        strokeDasharray={`${c * (percent/100)} ${c*(1-(percent/100))}`}
+        stroke={percent === 100 ? THEME.primary : THEME.secondary}
+        strokeWidth={st}
+        strokeDasharray={`${arc} ${C - arc}`}
         strokeDashoffset={0}
-        style={{transition: "stroke-dasharray 0.4s"}}
+        style={{ transition: "stroke-dasharray 0.5s" }}
       />
-      <text x="50%" y="53%" textAnchor="middle" fontSize="27" fill="#4F8A8B" fontWeight="700" dy=".3em">
-        {label}
-      </text>
+      {/* Accent for low match */}
+      {percent < 66 &&
+        <circle
+          cx={sz / 2}
+          cy={sz / 2}
+          r={r}
+          fill="none"
+          stroke={THEME.accent}
+          strokeWidth={st}
+          strokeDasharray={`${(100 - percent) / 100 * C} ${percent / 100 * C}`}
+          strokeDashoffset={arc * -1}
+          style={{ transition: "stroke-dasharray 0.5s" }}
+        />
+      }
+      {/* Center label */}
+      <text
+        x="50%" y="54%" textAnchor="middle"
+        fontSize="29" fill={THEME.primary} fontWeight="700" dy=".3em"
+      >{percent}%</text>
     </svg>
   );
 }
 
-// --- Styling ---
 const styles = {
-  heading: {
+  header: {
+    background: "#fff",
+    borderBottom: `4px solid ${THEME.secondary}`,
+    padding: "0 0 0 0",
+    position: "sticky",
+    top: 0,
+    zIndex: 5,
+    boxShadow: "0 4px 16px 0 rgba(79,138,139,0.04)"
+  },
+  headerLogo: {
+    maxWidth: 1000,
+    margin: "0 auto",
+    padding: "21px 40px 12px 20px",
     fontWeight: 800,
-    color: "#4F8A8B",
-    fontSize: "1.50em",
-    marginBottom: 2,
+    fontSize: "2rem",
+    color: THEME.primary,
+    letterSpacing: "1px",
+    display: "flex",
+    alignItems: "center"
+  },
+  mainBlock: {
+    maxWidth: 700,
+    margin: "0 auto",
+    padding: "15px 5px 60px 5px"
+  },
+  hero: {
+    margin: "30px 0 5px 0",
+    textAlign: "center"
+  },
+  sectionTitle: {
+    fontWeight: 800,
+    color: THEME.primary,
+    letterSpacing: "1.5px",
+    fontSize: "2em",
+    marginBottom: 6,
     marginTop: 3
   },
-  stepDesc: {
-    color: "#444",
+  heroSubtitle: {
+    color: THEME.accent,
+    fontWeight: 500,
     fontSize: 16,
-    marginBottom: 17,
-    marginTop: 6
+    marginBottom: 6
   },
-  cardFlex: {
+  stepperRow: {
     display: "flex",
-    gap: "28px",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-    marginBottom: 26,
-    minHeight: 55
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 0,
+    margin: "20px 0 34px"
   },
-  card: {
-    background: "#fff",
-    borderRadius: 16,
-    boxShadow: "0 3px 16px 0 rgba(79,138,139,0.08)",
-    padding: "28px 34px 26px 34px",
-    minWidth: 280,
-    flex: "1 0 278px",
-    maxWidth: 385
-  },
-  skillCard: {
-    background: "#fff",
-    borderRadius: 11,
-    boxShadow: "0 1.5px 10px 0 rgba(79,138,139,0.05)",
-    padding: "17px 25px",
-    minWidth: 175,
-    flex: "1 0 170px",
-    maxWidth: 220,
-    marginBottom: 10
-  },
-  resourceCard: {
+  cardBlock: {
     background: "#fff",
     borderRadius: 15,
-    boxShadow: "0 0px 12px 0 rgba(79,138,139,0.08)",
-    padding: "20px 32px 18px 25px",
-    minWidth: 235,
-    maxWidth: 314,
-    flex: "1 0 215px",
-    marginBottom: 17
+    boxShadow: "0 4px 14px 0 rgba(79,138,139,0.07)",
+    padding: "26px 29px 22px 29px",
+    maxWidth: 460,
+    margin: "0 auto 30px auto",
+    minWidth: 290,
+    minHeight: 230
   },
-  reportCard: {
-    background: "#fff",
-    borderRadius: 17,
-    boxShadow: "0 3px 14px 0 rgba(249,180,157,0.09)",
-    padding: "28px 36px",
-    minWidth: 330,
-    flex: "2 0 320px",
-    maxWidth: 470,
-    marginBottom: 2
+  actionsRow: {
+    display: "flex",
+    justifyContent: "flex-end",
+    marginTop: 20,
+    gap: 8
   },
-  progressCard: {
-    background: "#fff",
-    borderRadius: 17,
-    boxShadow: "0 3px 14px 0 rgba(249,180,157,0.10)",
-    padding: "31px 40px 34px 40px",
-    minWidth: 312,
-    maxWidth: 410,
-    flex: "1 0 312px",
-    marginBottom: 7,
+  navBtn: {
+    background: THEME.primary,
+    color: "#fff",
+    border: "none",
+    borderRadius: 7,
+    padding: "10px 24px",
+    fontWeight: 600,
+    fontSize: 15,
+    cursor: "pointer"
+  },
+  btnDisabled: {
+    background: "#ededed",
+    color: "#9e9e9e",
+    cursor: "not-allowed"
+  },
+  jobList: {
+    margin: "15px 0 6px 0",
     display: "flex",
     flexDirection: "column",
+    gap: 13
+  },
+  jobBtn: {
+    border: "none",
+    borderRadius: 18,
+    padding: "12px 2px",
+    fontWeight: 600,
+    fontSize: 18,
+    marginBottom: 1,
+    cursor: "pointer",
+    transition: "background 0.13s"
+  },
+  heading: {
+    fontWeight: 800,
+    color: THEME.primary,
+    fontSize: "1.42em",
+    marginBottom: 2,
+    marginTop: 3,
+    letterSpacing: "0.5px"
+  },
+  stepDesc: {
+    color: "#535151",
+    fontSize: 15,
+    marginBottom: 14,
+    marginTop: 5
+  },
+  skillsTable: {
+    width: "100%",
+    borderCollapse: "collapse",
+    margin: "12px 0",
+    fontSize: 15,
+    textAlign: "left"
+  },
+  skillFormRow: {
+    display: "flex",
+    gap: 11,
+    margin: "10px 0",
     alignItems: "center"
   },
   input: {
-    border: "1.6px solid #E0E0E0",
-    background: "#fafbfb",
-    borderRadius: 5,
+    border: "1.5px solid #E0E0E0",
+    background: "#fafafa",
+    borderRadius: 4,
     fontSize: 15,
-    padding: "7px 11px",
+    padding: "7px 10px",
     outline: "none",
-    minWidth: 100,
-    width: 176,
-    color: "#3a474d",
-    marginRight: 9
+    width: 130,
+    color: "#3a474d"
   },
-  accentBtn: {
-    background: "#F76B8A",
-    color: "#fff",
-    border: "none",
-    borderRadius: 6,
-    padding: "7px 22px",
+  actionBtn: {
+    background: THEME.secondary,
+    color: "#333",
     fontWeight: 600,
     fontSize: 15,
-    cursor: "pointer",
-    transition: "background 0.14s"
-  },
-  primaryBtn: {
-    background: "#4F8A8B",
-    color: "#fff",
     border: "none",
-    borderRadius: 6,
-    padding: "7px 22px",
-    fontWeight: 600,
-    fontSize: 15,
-    marginLeft: 14,
+    borderRadius: 5,
+    padding: "7px 16px",
     cursor: "pointer"
   },
-  roleBtn: {
-    border: "none",
-    borderRadius: 18,
-    padding: "8px 28px",
-    fontWeight: 600,
-    fontSize: 17,
-    marginBottom: 9,
-    marginRight: 8,
-    marginTop: 2,
-    cursor: "pointer",
-    boxShadow: "0 1px 5px #efefef",
-    transition: "background 0.14s"
+  userSkillListBlock: {
+    margin: "18px 0 0 0"
   },
-  skillLevelSelect: {
-    border: "1px solid #E0E0E0",
-    borderRadius: 3,
-    fontSize: 14,
-    padding: "2px 8px",
-    color: "#263d43",
-    background: "#f6f6f6"
-  },
-  delBtn: {
+  tblBtn: {
+    marginRight: 6,
     border: "none",
-    background: "#F76B8A",
-    color: "#fff",
-    borderRadius: "50%",
-    width: 22,
-    height: 22,
-    fontWeight: 700,
-    cursor: "pointer",
-    marginLeft: 5
-  },
-  wizBtn: {
-    background: "#4F8A8B",
-    color: "#fff",
-    border: "none",
-    borderRadius: 7,
-    padding: "10px 28px",
-    fontWeight: 600,
-    fontSize: 16,
-    marginRight: 17,
+    background: "#eee",
+    color: "#888",
+    borderRadius: 5,
+    padding: "4px 9px",
     cursor: "pointer"
   },
-  wizBtnDisabled: {
-    background: "#EDEDED",
-    color: "#B0B0B0",
-    border: "none",
-    borderRadius: 7,
-    padding: "10px 28px",
-    fontWeight: 600,
-    fontSize: 16,
-    marginRight: 17,
-    cursor: "not-allowed"
-  },
-  stepNav: {
-    marginTop: 8,
+  resultsRow: {
     display: "flex",
-    justifyContent: "flex-end",
-    gap: 8
+    gap: 19,
+    flexWrap: "wrap"
+  },
+  resultsLeft: {
+    minWidth: 160,
+    flex: "0 0 160px",
+    background: "#faf8f8",
+    borderRadius: 13,
+    padding: "15px 22px 20px 18px",
+    marginBottom: 14,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    boxShadow: "0 1.5px 10px 0 rgba(249,180,157,0.06)"
+  },
+  resultsTableBlock: {
+    flex: "1 0 230px"
   }
 };
 
