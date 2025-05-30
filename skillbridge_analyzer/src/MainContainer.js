@@ -266,9 +266,9 @@ function MainContainer() {
   // Step 3: user enters their own skills
   function renderUserSkillsForm() {
     return (
-      <div style={styles.cardBlock}>
+      <div style={{...styles.cardBlock, background: "#232C38"}}>
         <h2 style={styles.heading}>Step 3: Enter Your Current Skills</h2>
-        <p style={styles.stepDesc}>
+        <p style={{...styles.stepDesc, color: "#fae39d"}}>
           Add relevant skills and assign your proficiency level.
         </p>
         <form onSubmit={editingIdx !== null ? handleUpdateSkill : handleAddSkill} style={styles.skillFormRow}>
@@ -276,14 +276,24 @@ function MainContainer() {
             placeholder="Skill (e.g. SQL)"
             value={newSkillName}
             onChange={e => setNewSkillName(e.target.value)}
-            style={styles.input}
+            style={{
+              ...styles.input,
+              background: "#191D21",
+              border: "1.5px solid #232c37",
+              color: "#F4F4F7"
+            }}
             required
             autoFocus
           />
           <select
             value={newSkillLevel}
             onChange={e => setNewSkillLevel(e.target.value)}
-            style={styles.input}
+            style={{
+              ...styles.input,
+              background: "#191D21",
+              border: "1.5px solid #232c37",
+              color: "#F4F4F7"
+            }}
             required
           >
             {LEVELS.map(l => (
@@ -295,19 +305,19 @@ function MainContainer() {
           ) : (
             <>
               <button type="submit" style={styles.actionBtn}>Update</button>
-              <button type="button" style={{ ...styles.actionBtn, background: THEME.accent }} onClick={handleCancelEdit}>Cancel</button>
+              <button type="button" style={{ ...styles.actionBtn, background: THEME.accent, color:'#fff' }} onClick={handleCancelEdit}>Cancel</button>
             </>
           )}
         </form>
         <div style={styles.userSkillListBlock}>
           {userSkills.length === 0 ? (
-            <div style={{ fontStyle: "italic", color: "#999", marginTop: 16 }}>
+            <div style={{ fontStyle: "italic", color: "#666", marginTop: 16 }}>
               No skills added yet.
             </div>
           ) : (
-            <table style={styles.skillsTable}>
+            <table style={{...styles.skillsTable, background:'#21232c', color:'#F4F4F7'}}>
               <thead>
-                <tr>
+                <tr style={{background:'#262F33'}}>
                   <th>Your Skill</th>
                   <th>Level</th>
                   <th style={{ width: 120 }}></th>
@@ -315,7 +325,7 @@ function MainContainer() {
               </thead>
               <tbody>
                 {userSkills.map((s, i) => (
-                  <tr key={s.name + i}>
+                  <tr key={s.name + i} style={{background: i % 2 === 0 ? "#2B303B" : "#22252c" }}>
                     <td>{s.name}</td>
                     <td><LevelPill level={s.level} /></td>
                     <td>
@@ -608,15 +618,15 @@ function MainContainer() {
 
   // === Main render === //
   return (
-    <div style={{ background: "#fcfcfc", minHeight: "100vh", paddingBottom: 50 }}>
-      <header style={styles.header}>
+    <div style={{ background: "linear-gradient(120deg, #181A20 60%, #22242c 100%)", minHeight: "100vh", paddingBottom: 50 }}>
+      <header style={{...styles.header, background:'#191d22'}}>
         <div style={styles.headerLogo}>
           <span style={{ color: THEME.accent, fontSize: 30, marginRight: 10 }}>★</span>
           SkillBridge <span style={{ color: THEME.accent, marginLeft: 5 }}>Analyzer</span>
         </div>
       </header>
       <main style={styles.mainBlock}>
-        <div style={{ ...styles.hero, marginTop: 10 }}>
+        <div style={{ ...styles.hero, marginTop: 10, background:'#23272e' }}>
           <div style={styles.sectionTitle}>
             Skill Gap Analyzer - Step by Step
           </div>
