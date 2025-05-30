@@ -45,7 +45,6 @@ body {
   box-sizing: border-box;
 }
 
-/* Vivid hero, cards and buttons for colorfulness */
 .hero {
   padding-top: 120px;
   padding-bottom: 64px;
@@ -54,16 +53,16 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 24px;
-  background: linear-gradient(90deg, #fff8ea 50%, #FBD46D22 100%);
+  background: var(--sb-accent-block);
   border-radius: 18px;
-  box-shadow: 0 6px 28px 0 rgba(250,179,190,0.06);
+  box-shadow: 0 8px 32px 0 rgba(36,44,55,0.38);
 }
 
 .cardBlock, .card-block, .card {
-  background: linear-gradient(93deg, #fff 70%, #FBD46D10 120%);
+  background: var(--sb-card-gradient);
   border-radius: 15px;
-  box-shadow: 0 6px 20px 0 rgba(76,138,139,0.11);
-  border: 2.5px solid #FBD46D33;
+  box-shadow: 0 6px 22px 0 #101316cc;
+  border: var(--sb-border);
 }
 
 /* Buttons with palette pop */
