@@ -1,9 +1,12 @@
 import React from 'react';
 import './App.css';
+import MainContainer from './MainContainer';
 
+// PUBLIC_INTERFACE
 function App() {
   return (
     <div className="app">
+      {/* KAVIA AI Navbar */}
       <nav className="navbar">
         <div className="container">
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
@@ -14,21 +17,10 @@ function App() {
           </div>
         </div>
       </nav>
-
+      {/* MainContainer SkillBridge Analyzer */}
       <main>
-        <div className="container">
-          <div className="hero">
-            <div className="subtitle">AI Workflow Manager Template</div>
-            
-            <h1 className="title">skillbridge_analyzer</h1>
-            
-            <div className="description">
-              Start building your application.
-            </div>
-            
-            <button className="btn btn-large">Button</button>
-          </div>
-        </div>
+        {/* The new MainContainer has its own header/visual block */}
+        <MainContainer />
       </main>
     </div>
   );
