@@ -776,13 +776,13 @@ function PercentCircle({ percent }) {
 
 const styles = {
   header: {
-    background: "#fff",
+    background: "#191d22",
     borderBottom: `4px solid ${THEME.secondary}`,
     padding: "0 0 0 0",
     position: "sticky",
     top: 0,
     zIndex: 5,
-    boxShadow: "0 4px 16px 0 rgba(79,138,139,0.04)"
+    boxShadow: "0 4px 14px 0 #151A20"
   },
   headerLogo: {
     maxWidth: 1000,
@@ -802,11 +802,12 @@ const styles = {
   },
   hero: {
     margin: "30px 0 5px 0",
-    textAlign: "center"
+    textAlign: "center",
+    background: "#23272e"
   },
   sectionTitle: {
     fontWeight: 800,
-    color: THEME.primary,
+    color: THEME.secondary,
     letterSpacing: "1.5px",
     fontSize: "2em",
     marginBottom: 6,
@@ -826,14 +827,15 @@ const styles = {
     margin: "20px 0 34px"
   },
   cardBlock: {
-    background: "#fff",
+    background: "#22252c",
     borderRadius: 15,
-    boxShadow: "0 4px 14px 0 rgba(79,138,139,0.07)",
+    boxShadow: "0 4px 16px 0 #11131D",
     padding: "26px 29px 22px 29px",
     maxWidth: 460,
     margin: "0 auto 30px auto",
     minWidth: 290,
-    minHeight: 230
+    minHeight: 230,
+    color: "#F4F4F7"
   },
   actionsRow: {
     display: "flex",
@@ -852,8 +854,8 @@ const styles = {
     cursor: "pointer"
   },
   btnDisabled: {
-    background: "#ededed",
-    color: "#9e9e9e",
+    background: "#222b2d",
+    color: "#80889b",
     cursor: "not-allowed"
   },
   jobList: {
@@ -870,18 +872,19 @@ const styles = {
     fontSize: 18,
     marginBottom: 1,
     cursor: "pointer",
-    transition: "background 0.13s"
+    transition: "background 0.13s",
+    color: "#F4F4F7"
   },
   heading: {
     fontWeight: 800,
-    color: THEME.primary,
+    color: THEME.secondary,
     fontSize: "1.42em",
     marginBottom: 2,
     marginTop: 3,
     letterSpacing: "0.5px"
   },
   stepDesc: {
-    color: "#535151",
+    color: "#c3c7d0",
     fontSize: 15,
     marginBottom: 14,
     marginTop: 5
@@ -891,7 +894,9 @@ const styles = {
     borderCollapse: "collapse",
     margin: "12px 0",
     fontSize: 15,
-    textAlign: "left"
+    textAlign: "left",
+    background: "#21262a",
+    color: "#F4F4F7"
   },
   skillFormRow: {
     display: "flex",
@@ -900,18 +905,18 @@ const styles = {
     alignItems: "center"
   },
   input: {
-    border: "1.5px solid #E0E0E0",
-    background: "#fafafa",
+    border: "1.5px solid #232c37",
+    background: "#2a2f36",
     borderRadius: 4,
     fontSize: 15,
     padding: "7px 10px",
     outline: "none",
     width: 130,
-    color: "#3a474d"
+    color: "#F4F4F7"
   },
   actionBtn: {
     background: THEME.secondary,
-    color: "#333",
+    color: "#282E33",
     fontWeight: 600,
     fontSize: 15,
     border: "none",
@@ -925,8 +930,8 @@ const styles = {
   tblBtn: {
     marginRight: 6,
     border: "none",
-    background: "#eee",
-    color: "#888",
+    background: "#222D2C",
+    color: "#b3bac9",
     borderRadius: 5,
     padding: "4px 9px",
     cursor: "pointer"
@@ -939,14 +944,14 @@ const styles = {
   resultsLeft: {
     minWidth: 160,
     flex: "0 0 160px",
-    background: "#faf8f8",
+    background: "#21272e",
     borderRadius: 13,
     padding: "15px 22px 20px 18px",
     marginBottom: 14,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    boxShadow: "0 1.5px 10px 0 rgba(249,180,157,0.06)"
+    boxShadow: "0 2px 13px 0 #191B1E"
   },
   resultsTableBlock: {
     flex: "1 0 230px"
