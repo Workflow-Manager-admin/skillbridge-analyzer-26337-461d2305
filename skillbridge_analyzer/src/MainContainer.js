@@ -194,18 +194,16 @@ function MainContainer() {
   // Step 2: show required skills/levels
   function renderJobRequirements() {
     if (!selectedJob) return null;
-    // Highlight "Frontend Developer" selection with a more vibrant header, and maybe an icon
+    // Highlight step with accent color if applicable
     return (
       <div style={{
         ...styles.cardBlock,
-        background: selectedJob.title === "Frontend Developer"
-          ? "linear-gradient(108deg, #ffeafd 20%, #E0EDF5 85%)"
-          : styles.cardBlock.background
+        background: "linear-gradient(109deg,#232733 80%, #181a20 120%)",
       }}>
         <h2 style={{
           ...styles.heading,
           color: selectedJob.title === "Frontend Developer"
-            ? "#F76B8A"
+            ? THEME.accent
             : styles.heading.color,
           marginBottom: 12,
           display: "flex",
@@ -217,7 +215,7 @@ function MainContainer() {
         </h2>
         <p style={{
           ...styles.stepDesc,
-          color: selectedJob.title === "Frontend Developer" ? "#495057" : styles.stepDesc.color
+          color: "#FCDDB3"
         }}>
           {selectedJob.title === "Frontend Developer"
             ? <>Below are the core skill requirements and expected proficiency for a Frontend Developer.<br />
@@ -226,31 +224,24 @@ function MainContainer() {
         </p>
         <table style={{
           ...styles.skillsTable,
-          background: selectedJob.title === "Frontend Developer"
-            ? "rgba(254, 246, 239, 0.85)"
-            : styles.skillsTable.background,
-          boxShadow: selectedJob.title === "Frontend Developer"
-            ? "0 3px 25px 0 rgba(247,107,138,0.07)"
-            : styles.skillsTable.boxShadow,
-          borderRadius: 12
+          background: "#21262a",
+          boxShadow: "0 1px 8px 0 #181a2041",
+          borderRadius: 12,
+          color: "#fafaff"
         }}>
           <thead>
             <tr style={{
-              background: selectedJob.title === "Frontend Developer"
-                ? "#FBD46D" : "#ededed"
+              background: "#39404a"
             }}>
-              <th style={{color: "#415182"}}>Skill</th>
-              <th style={{color: "#415182"}}>Required Level</th>
+              <th style={{color: "#FBD46D"}}>Skill</th>
+              <th style={{color: "#FBD46D"}}>Required Level</th>
             </tr>
           </thead>
           <tbody>
             {selectedJob.requiredSkills.map((s, i) => (
               <tr key={s.name}
-                style={selectedJob.title === "Frontend Developer" ? {
-                  background: i % 2 === 0
-                    ? "rgba(231, 244, 250, 0.85)" : "#fff"
-                } : {}}>
-                <td style={{fontWeight: 600, color: "#4F8A8B" }}>{s.name}</td>
+                style={{background: i % 2 === 0 ? "#232a2744" : "#191B24" }}>
+                <td style={{fontWeight: 600, color: "#FBD46D" }}>{s.name}</td>
                 <td>
                   <LevelPill level={s.level} />
                 </td>
