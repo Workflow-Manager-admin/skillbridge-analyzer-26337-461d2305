@@ -358,24 +358,90 @@ function MainContainer() {
     );
   }
 
+  // --- Skill resource links for learning ---
+  // PUBLIC_INTERFACE
+  function getSkillResourceLinks(skill) {
+    // Map popular skills to demo resources.
+    const resourceDb = {
+      "JavaScript": [
+        { label: "freeCodeCamp JS", url: "https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/" },
+        { label: "MDN JS", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+        { label: "Codecademy JS", url: "https://www.codecademy.com/learn/introduction-to-javascript" },
+      ],
+      "React": [
+        { label: "React Docs", url: "https://react.dev/learn" },
+        { label: "freeCodeCamp React", url: "https://www.freecodecamp.org/learn/front-end-development-libraries/react/" },
+        { label: "Codecademy React", url: "https://www.codecademy.com/learn/react-101" }
+      ],
+      "CSS": [
+        { label: "freeCodeCamp CSS", url: "https://www.freecodecamp.org/learn/responsive-web-design/" },
+        { label: "MDN CSS", url: "https://developer.mozilla.org/en-US/docs/Web/CSS" },
+        { label: "CSS Tricks", url: "https://css-tricks.com/guides/" }
+      ],
+      "HTML": [
+        { label: "MDN HTML", url: "https://developer.mozilla.org/en-US/docs/Web/HTML" },
+        { label: "W3Schools HTML", url: "https://www.w3schools.com/html/" },
+        { label: "freeCodeCamp HTML", url: "https://www.freecodecamp.org/learn/responsive-web-design/basic-html-and-html5/" }
+      ],
+      "SQL": [
+        { label: "W3Schools SQL", url: "https://www.w3schools.com/sql/" },
+        { label: "Khan Academy SQL", url: "https://www.khanacademy.org/computing/computer-programming/sql" }
+      ],
+      "Python": [
+        { label: "Python.org", url: "https://docs.python.org/3/tutorial/" },
+        { label: "Real Python", url: "https://realpython.com/" }
+      ],
+      "Linux": [
+        { label: "Linux Journey", url: "https://linuxjourney.com/" }
+      ],
+      "AWS": [
+        { label: "AWS Tutorials", url: "https://aws.amazon.com/getting-started/hands-on/" }
+      ],
+      "Docker": [
+        { label: "Docker Getting Started", url: "https://docs.docker.com/get-started/" }
+      ],
+      // Add more as needed, fallback to general
+      "default": [
+        { label: "Search Google", url: "https://www.google.com/search?q=learn+SKILL" }
+      ]
+    };
+    return resourceDb[skill] || [ ...resourceDb["default"].map(link => ({...link, url: link.url.replace("SKILL", encodeURIComponent(skill))})) ];
+  }
+
   // Step 4: Percentage match
   function renderMatchResults() {
     const results = getSkillMatchResults();
     const percent = getMatchPercent();
 
+    // For vibrant row highlighting/status, and adding a "Resources" column for missing or weak skills.
     return (
-      <div style={styles.cardBlock}>
-        <h2 style={styles.heading}>Step 4: Skill Match Analysis</h2>
+      <div style={{
+        ...styles.cardBlock,
+        background: "linear-gradient(90deg, #ffffff 75%, #FFF4F2 100%)"
+      }}>
+        <h2 style={{
+          ...styles.heading,
+          color: THEME.accent,
+          textShadow: "0 2px 5px #ffd1e8bd"
+        }}>Step 4: Skill Match Analysis</h2>
         <p style={styles.stepDesc}>
-          See your match for <b>{selectedJob.title}</b>.
+          See your match for <b>{selectedJob.title}</b>. <span style={{color:"#e27041",fontWeight:600}}>For skills marked 'Missing' or 'Level too low', click a course link to quickly learn/improve!</span>
         </p>
         <div style={styles.resultsRow}>
-          <div style={styles.resultsLeft}>
-            <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 10 }}>
+          <div style={{
+            ...styles.resultsLeft,
+            background: "linear-gradient(135deg,#f6e3e2 50%,#fffae2 100%)",
+            boxShadow: "0 6px 16px 0 #FCB6BE33"
+          }}>
+            <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 10, color: THEME.primary }}>
               Percentage Match
             </div>
             <PercentCircle percent={percent} />
-            <div style={{ margin: "16px 0 10px", color: THEME.primary, fontWeight: 500 }}>
+            <div style={{
+              margin: "16px 0 10px",
+              color: percent === 100 ? THEME.primary : THEME.accent,
+              fontWeight: 500
+            }}>
               {percent === 100
                 ? "Perfect! All required skills matched."
                 : percent === 0
@@ -384,34 +450,96 @@ function MainContainer() {
             </div>
           </div>
           <div style={styles.resultsTableBlock}>
-            <table style={styles.skillsTable}>
+            <table style={{
+              ...styles.skillsTable,
+              background: "#f6fdff",
+              borderRadius: 15,
+              overflow: "hidden",
+              boxShadow: "0 2px 20px 0 #F5F0DD33"
+            }}>
               <thead>
-                <tr>
-                  <th>Required Skill</th>
-                  <th>Required Level</th>
-                  <th>Your Level</th>
-                  <th>Status</th>
+                <tr style={{ background: THEME.secondary }}>
+                  <th style={{color:"#385e5d"}}>Required Skill</th>
+                  <th style={{color:"#385e5d"}}>Required Level</th>
+                  <th style={{color:"#385e5d"}}>Your Level</th>
+                  <th style={{color:THEME.primary}}>Status</th>
+                  <th style={{color:THEME.accent}}>Resources</th>
                 </tr>
               </thead>
               <tbody>
-                {results.map((r, i) => (
-                  <tr key={r.name + i}>
-                    <td>{r.name}</td>
-                    <td><LevelPill level={r.requiredLevel} /></td>
-                    <td>
-                      {r.userLevel !== "None" ? <LevelPill level={r.userLevel} /> : <span style={{ color: "#bbb" }}>---</span>}
-                    </td>
-                    <td>
-                      {r.userLevel === "None" ? (
-                        <span style={{ color: THEME.accent, fontWeight: "bold" }}>Missing</span>
-                      ) : r.matched ? (
-                        <span style={{ color: THEME.primary, fontWeight: "bold" }}>Matched</span>
-                      ) : (
-                        <span style={{ color: THEME.secondary, fontWeight: "bold" }}>Level too low</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                {results.map((r, i) => {
+                  // Determine if to show resources
+                  const needsHelp = !r.matched;
+                  let rowBg = "";
+                  if (r.userLevel === "None") rowBg = "#fff8f9";
+                  else if (!r.matched) rowBg = "#fffbe9";
+                  else rowBg = "#f7fff7";
+                  return (
+                    <tr key={r.name + i} style={{
+                      background: rowBg,
+                      borderLeft: needsHelp
+                        ? `6px solid ${THEME.accent}`
+                        : `6px solid ${THEME.primary}`,
+                      fontWeight: needsHelp ? 600 : 400
+                    }}>
+                      <td style={{color: needsHelp ? THEME.accent : THEME.primary}}>{r.name}</td>
+                      <td><LevelPill level={r.requiredLevel} /></td>
+                      <td>
+                        {r.userLevel !== "None"
+                          ? <LevelPill level={r.userLevel} />
+                          : <span style={{ color: "#bbb", fontStyle:"italic" }}>---</span>}
+                      </td>
+                      <td>
+                        {r.userLevel === "None" ? (
+                          <span style={{ color: THEME.accent, fontWeight: "bold" }}>Missing</span>
+                        ) : r.matched ? (
+                          <span style={{ color: THEME.primary, fontWeight: "bold" }}>Matched</span>
+                        ) : (
+                          <span style={{ color: THEME.secondary, fontWeight: "bold" }}>Level too low</span>
+                        )}
+                      </td>
+                      <td>
+                        {needsHelp ? (
+                          <div style={{display:"flex", flexDirection:"column", gap:3}}>
+                            {getSkillResourceLinks(r.name).slice(0,2).map(link =>
+                              <a
+                                key={link.url}
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  background: "#fff",
+                                  border: `1.5px solid ${THEME.accent}`,
+                                  borderRadius: 5,
+                                  color: THEME.accent,
+                                  fontWeight: 500,
+                                  fontSize: 13,
+                                  padding: "2.5px 8px",
+                                  marginTop: 1,
+                                  textDecoration: "none",
+                                  boxShadow: "0 1px 4px #fdbaca44"
+                                }}
+                              >
+                                {link.label} <span style={{
+                                  fontWeight:900,
+                                  fontSize:13,
+                                  verticalAlign:"middle"
+                                }}>↗</span>
+                              </a>
+                            )}
+                          </div>
+                        ) : (
+                          <span style={{
+                            color: "#B3B3B3",
+                            fontSize:12
+                          }}>
+                            -
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
