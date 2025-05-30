@@ -65,54 +65,57 @@ body {
   border: var(--sb-border);
 }
 
-/* Buttons with palette pop */
+/* Buttons - modern dark glass look with accent transitions */
 .btn, .btn-large, button {
-  background-color: var(--sb-primary);
-  color: #fff;
+  background: linear-gradient(90deg,#272F36 70%, var(--sb-primary) 130%);
+  color: #F5F1F4;
   border: none;
   border-radius: 7px;
   padding: 11px 25px;
   font-size: 1.08rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.16s;
-  box-shadow: 0 2px 15px 0 #F6E3E277;
+  transition: background 0.16s, box-shadow 0.12s;
+  box-shadow: 0 2px 15px 0 #181B1E77;
   margin: 0 1px;
 }
-
 .btn:hover, .btn-large:hover, button:hover {
-  background: linear-gradient(93deg, var(--sb-accent), var(--sb-primary));
+  background: linear-gradient(91deg, var(--sb-accent) 0%, var(--sb-primary) 98%);
+  color: #fff;
+  box-shadow: 0 3px 16px #f76b8a55;
+}
+.btn:active {
+  background: var(--sb-accent);
   color: #fff;
 }
 
-/* Accent background for blocks */
 .accent-block {
-  background: linear-gradient(90deg, #ffe6ee 10%, #fbd46d55 100%);
+  background: var(--sb-accent-block);
   border-radius: 13px;
-  box-shadow: 0 3px 25px 0 rgba(247,107,138,0.08);
+  box-shadow: 0 3px 22px 0 #1e001955;
 }
 
-/* Colorful text utility classes */
+/* Utility card styles for vibrant pop against dark */
 .text-primary {
-  color: var(--sb-primary) !important;
+  color: var(--sb-secondary) !important;
 }
 .text-secondary {
-  color: var(--sb-secondary) !important;
+  color: var(--sb-primary) !important;
 }
 .text-accent {
   color: var(--sb-accent) !important;
 }
 
-/* Table header pop */
+/* Table header for contrast; rest is dark */
 th {
-  color: var(--sb-primary);
+  color: #181B1E;
   background: var(--sb-secondary);
   font-weight: 700;
   font-size: 1.08rem;
 }
 
+/* NAVBAR & LOGO dark mode gradient & pop */
 .navbar {
-  /* Enhance to a lively gradient and bolder border */
   background: var(--sb-navbar-gradient);
   padding: 18px 0 18px 0;
   display: flex;
@@ -123,7 +126,7 @@ th {
   width: 100%;
   box-sizing: border-box;
   z-index: 100;
-  box-shadow: 0 4px 14px 0 rgba(79,138,139,0.12);
+  box-shadow: 0 4px 18px 0 #12141a88;
 }
 
 .logo {
@@ -134,9 +137,9 @@ th {
   gap: 12px;
   letter-spacing: 0.8px;
   padding: 7px 23px 7px 15px;
-  background: rgba(255,255,252,0.13);
+  background: rgba(77,90,103,0.13);
   border-radius: 26px;
-  box-shadow: 0 2px 10px 0 rgba(79,138,139,0.14);
+  box-shadow: 0 2px 10px 0 #22282de4;
 }
 
 .logo-symbol {
@@ -147,24 +150,7 @@ th {
   text-shadow: 0 2px 8px #f3c95e44;
 }
 
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 24px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.hero {
-  padding-top: 120px;
-  padding-bottom: 64px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-}
-
+/* Typography on dark */
 .subtitle {
   color: var(--kavia-orange);
   font-weight: 500;
@@ -184,25 +170,4 @@ th {
   color: var(--text-secondary);
   max-width: 600px;
   margin-bottom: 16px;
-}
-
-.btn {
-  background-color: var(--kavia-orange);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 10px 20px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.btn:hover {
-  background-color: #FF8B4D;
-}
-
-.btn-large {
-  padding: 12px 24px;
-  font-size: 1.1rem;
 }
