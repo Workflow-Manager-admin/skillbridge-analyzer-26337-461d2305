@@ -51,12 +51,16 @@ const DEMO_JOBS = [
   }
 ];
 
-// For consistent color theme:
+ // For consistent color theme:
 const THEME = {
   primary: "#4F8A8B",
   secondary: "#FBD46D",
   accent: "#F76B8A",
-  light: "#fff"
+  light: "#fff",
+  accent2: "#E87A41",        // Kavia orange
+  accent3: "#B388EB",        // Extra violet
+  accent4: "#1A1A1A",        // Kavia dark
+  secondary2: "#FFC93C"
 };
 const LEVELS = ["Beginner", "Intermediate", "Expert"];
 const LEVEL_TO_NUM = { Beginner: 1, Intermediate: 2, Expert: 3 };
@@ -682,17 +686,38 @@ function StepArrow() {
     }}>{'>'}</span>
   );
 }
-// --- LevelPill small component ---
+ // --- LevelPill small component ---
 function LevelPill({ level }) {
-  const map = { Beginner: "#f3bcbc", Intermediate: "#ffe7a5", Expert: "#c0e1d7" };
+  // More vibrant color mapping with subtle outline for visual pop.
+  const map = {
+    Beginner: "linear-gradient(87deg,#ffe7ba,#ffe7a5 60%,#FFC4A1)",
+    Intermediate: "linear-gradient(87deg,#FFF176,#FFD25A 70%,#FBD46D 99%)",
+    Expert: "linear-gradient(87deg,#c0e1d7,#4F8A8B 90%,#accac6)"
+  };
+  const outline = {
+    Beginner: "1.3px solid #fc9081",
+    Intermediate: "1.4px solid #cf9f00aa",
+    Expert: "1.6px solid #399780"
+  };
+  const txtCol = {
+    Beginner: "#FF642E",
+    Intermediate: "#BB8900",
+    Expert: "#2E856E"
+  };
   return (
     <span style={{
-      padding: "3px 12px",
-      borderRadius: 12,
+      padding: "4px 13px 3px 13px",
+      borderRadius: 13,
       background: map[level] || "#eee",
-      color: "#333",
+      color: txtCol[level] || "#333",
       fontSize: 14,
-      fontWeight: 500
+      fontWeight: 700,
+      border: outline[level] || "1px solid #eee",
+      boxShadow: level === "Expert"
+        ? "0 0 4px #A5ECC0,inset 0 2px 8px #e3f8f3"
+        : level === "Intermediate"
+        ? "0 0 3px #fff1a7,0 2px 6px #ffe8b5"
+        : "0 1px 7px #ffe5e5,inset 0 3px 6px #f7b59c22"
     }}>{level}</span>
   );
 }
